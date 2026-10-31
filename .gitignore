@@ -27,6 +27,7 @@ ENV/
 
 # Trained model & large data files
 *.joblib
+!emotion_model.joblib
 *.pkl
 *.h5
 *.pt
