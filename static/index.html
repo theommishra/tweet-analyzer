@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Twitter Post Emotion Analyzer — Ekman Taxonomy</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-wrapper">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Tweet Emotion Analyzer</h1>
+          <span class="subtitle">Twitter Post Ekman 6 + Neutral Offline Classifier</span>
+        </div>
+      </div>
+      <div class="status-badges">
+        <span class="badge offline-badge">
+          <span class="dot"></span> 100% Offline Local Model
+        </span>
+        <span class="badge taxonomy-badge">Ekman Taxonomy (7 Classes) · Twitter Edition</span>
+      </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="main-grid">
+      <!-- Input Panel -->
+      <section class="card input-card">
+        <div class="card-header">
+          <h2>Paste a Tweet / Post</h2>
+          <span class="char-counter" id="charCounter">0 / 280</span>
+        </div>
+
+        <div class="input-wrapper">
+          <textarea 
+            id="sentenceInput" 
+            placeholder="Paste a tweet here... (e.g., 'Just got amazing news, feeling absolutely thrilled! 🎉 #blessed')"
+            rows="4" 
+            maxlength="280"
+          ></textarea>
+        </div>
+
+        <!-- Preset Chips -->
+        <div class="presets-section">
+          <span class="presets-label">Try sample tweets:</span>
+          <div class="preset-chips">
+            <button class="chip" data-text="Just got the best news ever!! So happy and grateful rn 🎉 #blessed #joy">😊 Joy</button>
+            <button class="chip" data-text="Missing my best friend every single day... the emptiness never goes away 😢 #heartbroken">😢 Sadness</button>
+            <button class="chip" data-text="Stop lying to us!! This is absolutely outrageous and unacceptable 😡 #furious #angry">😡 Anger</button>
+            <button class="chip" data-text="The situation is getting worse and I'm genuinely scared of what comes next 😱 #worried">😱 Fear</button>
+            <button class="chip" data-text="WAIT WHAT?! I cannot believe this just happened omg 😲 #shocked #mindblown">😲 Surprise</button>
+            <button class="chip" data-text="This is absolutely disgusting behavior from a public figure. Absolutely vile 🤢 #unacceptable">🤢 Disgust</button>
+            <button class="chip" data-text="The quarterly earnings report will be released at 4:00 PM EST on Friday.">😐 Neutral</button>
+            <button class="chip" data-text="I am not happy with how things turned out.">💡 Negation Test</button>
+          </div>
+        </div>
+
+        <!-- Action Controls -->
+        <div class="action-bar">
+          <button id="detectBtn" class="btn btn-primary">
+            <svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            <span class="btn-text">Analyze Tweet</span>
+          </button>
+          <button id="toggleTraceBtn" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+            </svg>
+            <span>Preprocessing Trace</span>
+          </button>
+        </div>
+
+        <!-- Preprocessing Trace Drawer -->
+        <div id="traceDrawer" class="trace-drawer hidden">
+          <h3>Tweet Preprocessing Trace</h3>
+          <div class="trace-grid">
+            <div class="trace-item">
+              <span class="trace-key">Raw Tweet</span>
+              <code id="traceRaw">-</code>
+            </div>
+            <div class="trace-item">
+              <span class="trace-key">Emojis Found</span>
+              <code id="traceEmojis">-</code>
+            </div>
+            <div class="trace-item">
+              <span class="trace-key">Contractions Expanded</span>
+              <code id="traceExpanded">-</code>
+            </div>
+            <div class="trace-item">
+              <span class="trace-key">Negation Scope Tagged</span>
+              <code id="traceNegated">-</code>
+            </div>
+            <div class="trace-item trace-full">
+              <span class="trace-key">Final Model Cleaned Input</span>
+              <code id="traceCleaned" class="highlight-code">-</code>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Output Panel -->
+      <section class="card output-card">
+        <div class="card-header">
+          <h2>Prediction Result</h2>
+          <span id="backendBadge" class="backend-tag">Engine: Scikit-Learn</span>
+        </div>
+
+        <!-- Hero Result Card -->
+        <div id="heroCard" class="hero-card emotion-neutral">
+          <div class="hero-badge" id="heroEmoji">😐</div>
+          <div class="hero-details">
+            <span class="hero-label">Tweet Primary Emotion</span>
+            <h3 class="hero-title" id="heroEmotionTitle">NEUTRAL</h3>
+            <div class="confidence-container">
+              <div class="confidence-pill" id="heroConfidencePill">0.0% Confidence</div>
+              <span class="confidence-subtext" id="heroConfidenceSub">Awaiting tweet input...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Breakdown Section -->
+        <div class="breakdown-section">
+          <h3>Tweet Emotion Distribution (Ekman 6 + Neutral)</h3>
+          <div class="distribution-list" id="distributionList">
+            <!-- Progress bars injected via app.js -->
+            <div class="empty-state">Click "Analyze Tweet" to view the full breakdown distribution.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Prediction History Section -->
+    <section class="card history-card">
+      <div class="history-header">
+        <div>
+          <h2>Tweet Analysis History</h2>
+          <span class="history-count" id="historyCount">0 tweets analyzed locally</span>
+        </div>
+        <div class="history-actions">
+          <input type="text" id="historySearch" placeholder="Filter tweets..." class="search-input" />
+          <select id="historyFilter" class="select-filter">
+            <option value="all">All Emotions</option>
+            <option value="joy">Joy</option>
+            <option value="sadness">Sadness</option>
+            <option value="anger">Anger</option>
+            <option value="fear">Fear</option>
+            <option value="surprise">Surprise</option>
+            <option value="disgust">Disgust</option>
+            <option value="neutral">Neutral</option>
+          </select>
+          <button id="exportHistoryBtn" class="btn btn-sm btn-outline">Export JSON</button>
+          <button id="clearHistoryBtn" class="btn btn-sm btn-danger">Clear</button>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Tweet</th>
+              <th>Primary Emotion</th>
+              <th>Confidence</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <tr>
+              <td colspan="5" class="empty-row">No tweet analysis history yet. Paste a tweet above!</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Twitter Post Emotion Analyzer — Powered by Python &amp; Ekman Taxonomy — 100% Offline</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

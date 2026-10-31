@@ -1,0 +1,12 @@
+streamlit>=1.30.0
+sentence-transformers>=2.2.0
+scikit-learn>=1.2.0
+numpy>=1.22.0
+pandas>=1.5.0
+textstat>=0.7.3
+nltk>=3.9.0
+nrclex>=4.1.0
+joblib>=1.2.0
+scipy>=1.8.0
+textblob>=0.17.0
+torch>=2.0.0
